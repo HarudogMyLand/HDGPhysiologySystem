@@ -16,6 +16,9 @@ namespace Physiology.Organs.OrganImplementation.Brain
         private Diencephalon _diencephalon;
         private LimbicSystem _limbicSystem;
         private BrainSignalBoard  _signalBoard;
+        
+        private OrganPathology _pathology;
+        private OrganStates _state;
 
         public Brain() : base(OrganNames.Brain, "Brain")
         {
@@ -26,6 +29,7 @@ namespace Physiology.Organs.OrganImplementation.Brain
             _diencephalon = new Diencephalon();
             _limbicSystem = new LimbicSystem();
             _signalBoard = new BrainSignalBoard();
+            _signalBoard.ResetToHealthy();
         }
 
         public override void Tick(double deltaTime)
@@ -36,6 +40,8 @@ namespace Physiology.Organs.OrganImplementation.Brain
             _cerebellum.Tick(deltaTime, _signalBoard);
             _limbicSystem.Tick(deltaTime, _signalBoard);
             _brainstem.Tick(deltaTime, _signalBoard);
+            
+            // update state
         }
     }
 }

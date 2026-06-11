@@ -3,7 +3,7 @@
 public enum OrganStates
 {
     Healthy,
-    Infected,
+    Insufficient,
     Damaged,
     Unknown,
     Dead,
