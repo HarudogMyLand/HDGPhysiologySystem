@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Physiology")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ae8d385c8462d8afff46091c545711d1a6e374d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3ca37393f93d91232658f98163fa34df5b2a1840")]
 [assembly: System.Reflection.AssemblyProductAttribute("Physiology")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Physiology")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
