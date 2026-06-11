@@ -19,6 +19,8 @@ public class LimbicSystem
 
     // Derived overall health
     public double OverallHealth => (Hippocampus + Amygdala + CingulateCortex + NucleusAccumbens + SeptalNuclei + MammillaryBodies) / 6.0;
+    
+    public OrganPathology Pathology { get; set; } = new OrganPathology();
 
     /// <summary>
     /// Called by Brain.Tick() every frame.

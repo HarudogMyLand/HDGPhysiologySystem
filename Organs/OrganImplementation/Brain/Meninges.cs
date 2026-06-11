@@ -10,6 +10,7 @@ public class Meninges
     public double ArachnoidIntegrity { get; set; } = 1.0;
     public double PiaIntegrity { get; set; } = 1.0;
 
+    public double OverallHealth => (DuraIntegrity + ArachnoidIntegrity + PiaIntegrity) / 3;
     
     // Bleeding types
     public double EpiduralBleedingVolume { get; set; }   // mL
@@ -18,6 +19,7 @@ public class Meninges
     
     // Inflammation (meningitis)
     public double InflammationLevel { get; set; } = 0.0;   // 0..1
+    public OrganPathology Pathology { get; set; } = new OrganPathology();
     
     // CSF pressure relative to normal (mmHg)
     public double IntracranialPressureDelta { get; set; } = 0.0;  // +extra mmHg

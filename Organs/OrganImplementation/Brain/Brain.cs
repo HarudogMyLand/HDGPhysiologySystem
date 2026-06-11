@@ -42,6 +42,26 @@ namespace Physiology.Organs.OrganImplementation.Brain
             _brainstem.Tick(deltaTime, _signalBoard);
             
             // update state
+            if (
+                _meninges.OverallHealth > 0.8 &&
+                _cerebrum.OverallHealth > 0.8 &&
+                _diencephalon.OverallHealth > 0.8 &&
+                _limbicSystem.OverallHealth > 0.8 &&
+                _brainstem.OverallHealth > 0.8)
+            {
+                _state = OrganStates.Healthy;
+            }
+            else
+            {
+                // scan sub organs and update pathology
+                _pathology =
+                    _brainstem.Pathology |
+                    _cerebrum.Pathology |
+                    _cerebellum.Pathology |
+                    _diencephalon.Pathology |
+                    _limbicSystem.Pathology |
+                    _meninges.Pathology;
+            }
         }
     }
 }

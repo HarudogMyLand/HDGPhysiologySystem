@@ -16,6 +16,7 @@ public class Cerebellum
 
     // Derived overall health
     public double OverallHealth => (Vermis + Hemispheres + FlocculonodularLobe) / 3.0;
+    public OrganPathology Pathology { get; set; } = new OrganPathology();
 
     /// <summary>
     /// Called by Brain.Tick() every frame.
@@ -39,7 +40,7 @@ public class Cerebellum
         // Vermis and flocculonodular lobe are critical for balance
         double balanceHealth = (Vermis + FlocculonodularLobe) / 2.0;
         signalBoard.BalanceCapability = balanceHealth;
-        if (balanceHealth < 0.3)
+        if (balanceHealth < Macro.DestroyedThreshold)
             signalBoard.PosturalInstability = true;
         else
             signalBoard.PosturalInstability = false;

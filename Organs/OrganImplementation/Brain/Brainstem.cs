@@ -1,4 +1,5 @@
 ﻿using System;
+using Physiology.Organs;
 
 namespace Physiology.Organs.OrganImplementation.Brain;
 
@@ -17,6 +18,12 @@ public class Brainstem
 
     // Derived overall health (critical: medulla + reticular formation weighted higher)
     public double OverallHealth => (Medulla * 0.4 + ReticularFormation * 0.3 + Pons * 0.15 + Midbrain * 0.15);
+    public OrganPathology Pathology { get; set; } = new OrganPathology();
+
+    public Brainstem()
+    {
+        Pathology = OrganPathology.None;
+    }
 
     /// <summary>
     /// Called by Brain.Tick() every frame.
@@ -32,25 +39,32 @@ public class Brainstem
         // === Vital Signals (from Medulla) ===
         // Respiratory drive: medulla's dorsal and ventral respiratory groups
         signalBoard.RespiratoryDrive = medullaHealth;
+        
         // If medulla damaged, breathing stops
-        if (medullaHealth < 0.2)
+        if (medullaHealth < Macro.DestroyedThreshold)
+        {
             signalBoard.RespiratoryDrive = 0;
+        }
 
         // Cardiac center: heart rate and contractility modulation
-        signalBoard.CardiacCenterFunction = medullaHealth;
-        signalBoard.VasomotorCenterFunction = medullaHealth;   // Blood pressure regulation
+        signalBoard.CardiacCenterFunction = medullaHealth; 
+        
+        // Blood pressure regulation
+        signalBoard.VasomotorCenterFunction = medullaHealth;  
 
         // Baroreceptor reflex (blood pressure stabilization)
         signalBoard.BaroreceptorReflexGain = medullaHealth;
 
         // === Arousal & Consciousness (from Reticular Formation) ===
         signalBoard.ReticularActivatingSystem = reticularHealth;
+        
         // If reticular formation severely damaged, unconsciousness/coma
-        if (reticularHealth < 0.25)
+        if (reticularHealth < Macro.DestroyedThreshold)
             signalBoard.IsConscious = false;
 
         // Store brainstem reticular activity for Cerebrum consciousness check
-        signalBoard.BrainstemReticularFormationActive = reticularHealth > 0.3;
+        signalBoard.BrainstemReticularFormationActive =
+            reticularHealth > (Macro.DestroyedThreshold + Random.Shared.NextDouble() * 0.1);
 
         // === Reflexes ===
         // Pupillary light reflex (midbrain)
@@ -63,6 +77,7 @@ public class Brainstem
         signalBoard.CoughReflex = medullaHealth;
 
         // === Cranial Nerve Functions (simplified) ===
+        // Maybe one day you will have to simulate brain nerves? just think about it
         signalBoard.FacialMotorFunction = Pons;         // CN VII
         signalBoard.EyeMovementControl = Midbrain;      // CN III, IV, VI
         signalBoard.SwallowingFunction = Math.Min(Medulla, Pons);
@@ -84,7 +99,9 @@ public class Brainstem
 
         // === Critical Damage Check: Immediate Death ===
         // If medulla completely destroyed OR reticular formation destroyed AND medulla < threshold
-        if (medullaHealth <= 0.01 || (reticularHealth <= 0.01 && medullaHealth < 0.2))
+        if (medullaHealth <= Macro.DeathThreshold || 
+            (reticularHealth <= Macro.DeathThreshold && 
+             medullaHealth < Macro.DestroyedThreshold))
         {
             signalBoard.IsConscious = false;
             signalBoard.RespiratoryDrive = 0;
@@ -101,9 +118,10 @@ public class Brainstem
 
         // === Neuroinflammation (if severe damage) ===
         double damageFactor = 1.0 - health;
-        if (damageFactor > 0.7)
+        if (damageFactor > 0.6)
         {
-            signalBoard.NeuroinflammationMarker = Math.Min(1.0, signalBoard.NeuroinflammationMarker + 0.02 * deltaTime);
+            signalBoard.NeuroinflammationMarker = 
+                Math.Min(1.0, signalBoard.NeuroinflammationMarker + 0.02 * deltaTime);
         }
     }
 }

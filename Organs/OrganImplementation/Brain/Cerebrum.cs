@@ -22,6 +22,9 @@ public class Cerebrum
     // Additional subregions if needed
     public double MotorCortex { get; set; } = 1.0;
     public double SomatosensoryCortex { get; set; } = 1.0;
+    
+    public double OverallHealth =>  (FrontalLobe + ParietalLobe + TemporalLobe + OccipitalLobe) / 4;
+    public OrganPathology  Pathology { get; set; } = new OrganPathology();
 
     /// <summary>
     /// Called by Brain.Tick() every frame.

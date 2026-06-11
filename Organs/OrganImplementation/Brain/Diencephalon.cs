@@ -14,6 +14,8 @@ public class Diencephalon
     public double Subthalamus { get; set; } = 1.0;       // Motor regulation (part of basal ganglia)
     public double Epithalamus { get; set; } = 1.0;       // Pineal gland (melatonin), circadian rhythm
 
+    public double OverallHealth => (Thalamus + Hypothalamus + Subthalamus + Epithalamus) / 4.0;
+    public OrganPathology Pathology { get; set; } = new OrganPathology();
     /// <summary>
     /// Called by Brain.Tick() every frame.
     /// Reads current integrities and writes signals to BrainSignalBoard.
