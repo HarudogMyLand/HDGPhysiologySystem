@@ -26,7 +26,7 @@ public class Diencephalon
         // Thalamic damage disrupts sensory relay to cortex
         signalBoard.ThalamicSensoryRelay = Thalamus;
         // Thalamic reticular nucleus contributes to consciousness/attention
-        if (Thalamus < 0.3)
+        if (Thalamus < Macro.OrganDestroyedThreshold)
             signalBoard.IsConscious = false;   // Override if thalamus too damaged
 
         // Subthalamus damage causes movement disorders (hemiballism)
@@ -68,7 +68,7 @@ public class Diencephalon
         // Thermoregulation: anterior hypothalamus detects heat, posterior prevents heat loss
         // Simplified: if hypothalamus damaged, body temperature regulation fails
         signalBoard.ThermoregulationCapability = hypothalamicHealth;
-        if (hypothalamicHealth < 0.4)
+        if (hypothalamicHealth < Macro.OrganBrokenThreshold)
             signalBoard.BodyTemperatureRegulationFailure = true;
 
         // Appetite and thirst regulation

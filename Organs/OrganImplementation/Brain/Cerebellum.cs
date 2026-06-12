@@ -40,7 +40,7 @@ public class Cerebellum
         // Vermis and flocculonodular lobe are critical for balance
         double balanceHealth = (Vermis + FlocculonodularLobe) / 2.0;
         signalBoard.BalanceCapability = balanceHealth;
-        if (balanceHealth < Macro.DestroyedThreshold)
+        if (balanceHealth < Macro.OrganDestroyedThreshold)
             signalBoard.PosturalInstability = true;
         else
             signalBoard.PosturalInstability = false;

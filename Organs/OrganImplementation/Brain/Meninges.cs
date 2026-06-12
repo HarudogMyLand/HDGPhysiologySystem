@@ -47,7 +47,7 @@ public class Meninges
         signalBoard.HasSubarachnoidHemorrhage = SubarachnoidBleedingVolume > 10;
         
         // If inflammation high, trigger cytokine signals
-        if (InflammationLevel > 0.7)
+        if (InflammationLevel > Macro.OrganDamageThreshold)
         {
             signalBoard.Interleukin6 = Math.Min(1.0, signalBoard.Interleukin6 + 0.1 * deltaTime);
         }

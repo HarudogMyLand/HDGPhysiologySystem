@@ -47,7 +47,7 @@ public class Cerebrum
         signalBoard.PainSignal = signalBoard.HasPainInput ? 
             Math.Min(1.0, (ParietalLobe + TemporalLobe) / 2.0 * signalBoard.PainInputStrength) : 0;
 
-        // Cognitive function (decision making, memory) - primarily frontal + temporal
+        // Cognitive function (decision-making, memory) - primarily frontal + temporal
         signalBoard.CognitiveFunction = (FrontalLobe + TemporalLobe) / 2.0;
 
         // Vision loss if occipital lobe damaged
@@ -61,11 +61,11 @@ public class Cerebrum
 
         // === Hormonal signals (cerebrum influences via hypothalamus, but here we just reflect damage) ===
         // Severe frontal damage reduces stress regulation
-        if (FrontalLobe < 0.3)
+        if (FrontalLobe < Macro.OrganDestroyedThreshold)
             signalBoard.StressHormoneLevel = Math.Min(1.0, signalBoard.StressHormoneLevel + 0.01 * deltaTime);
         
         // Temporal lobe damage can cause inappropriate ADH release (simplified)
-        if (TemporalLobe < 0.5)
+        if (TemporalLobe < Macro.OrganBrokenThreshold)
             signalBoard.AntidiureticHormone = Math.Min(1.0, signalBoard.AntidiureticHormone + 0.005 * deltaTime);
 
         // === Immune signals ===
