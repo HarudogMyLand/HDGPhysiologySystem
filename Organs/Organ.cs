@@ -34,8 +34,6 @@ namespace Physiology.Organs
             Name = name;
         }
 
-        public abstract void OnDamageReceived(DamageInfo damageinfo);
-
         public virtual void Tick(double deltaTime)
         {
 
