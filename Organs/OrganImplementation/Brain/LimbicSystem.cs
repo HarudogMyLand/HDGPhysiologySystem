@@ -76,5 +76,47 @@ public class LimbicSystem
         {
             signalBoard.HippocampalInflammationFactor = 0;
         }
+        
+        UpdatePathology(OverallHealth, damageFactor, signalBoard);
     }
+    
+    private void UpdatePathology(double health, double damageFactor, BrainSignalBoard signalBoard)
+    {
+        var reversibleFlags = OrganPathology.Inflammation | OrganPathology.Edema;
+        Pathology &= ~reversibleFlags;
+
+        bool hasNeuroinflammation = signalBoard.NeuroinflammationMarker > Macro.OrganDeathThreshold;
+        bool severeDamage = damageFactor > Macro.OrganDestroyedThreshold;  
+        if (hasNeuroinflammation || severeDamage)
+        {
+            Pathology |= OrganPathology.Inflammation;
+        }
+
+        if (signalBoard.IntracranialPressureDelta > 10.0)   // mmHg
+        {
+            Pathology |= OrganPathology.Edema;
+        }
+
+        // if (signalBoard.CerebralBloodFlow < 0.3) Pathology |= OrganPathology.Ischemia;
+
+        if (!Pathology.HasFlag(OrganPathology.Atrophy) 
+            && health < 0.6 
+            && signalBoard.NeuroinflammationMarker > 0.2)
+        {
+            Pathology |= OrganPathology.Atrophy;
+        }
+
+        if (!Pathology.HasFlag(OrganPathology.Necrosis) && health < 0.2)
+        {
+            Pathology |= OrganPathology.Necrosis;
+        }
+
+        if (!Pathology.HasFlag(OrganPathology.Fibrosis) 
+            && health < 0.5 
+            && signalBoard.NeuroinflammationMarker > 0.1)
+        {
+            Pathology |= OrganPathology.Fibrosis;
+        }
+    }
+
 }

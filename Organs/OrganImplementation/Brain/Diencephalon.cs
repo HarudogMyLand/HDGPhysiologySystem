@@ -97,4 +97,49 @@ public class Diencephalon
         // Overall brain function already computed in Cerebrum, but can influence
         signalBoard.OverallFunction = (signalBoard.OverallFunction + avgHealth) / 2.0;
     }
+
+    
+    private void UpdatePathology(double health, double damageFactor, BrainSignalBoard signalBoard)
+    {
+        // Clear reversible flags
+        var reversibleFlags = OrganPathology.Inflammation | OrganPathology.Edema;
+        Pathology &= ~reversibleFlags;
+
+        // Inflammation: from global neuroinflammation or severe local damage
+        bool hasNeuroinflammation = signalBoard.NeuroinflammationMarker > 0.05;
+        bool severeDamage = damageFactor > 0.3;
+        if (hasNeuroinflammation || severeDamage)
+            Pathology |= OrganPathology.Inflammation;
+
+        // Edema: from elevated intracranial pressure
+        if (signalBoard.IntracranialPressureDelta > 10.0)
+            Pathology |= OrganPathology.Edema;
+
+        // TODO: where is this blood flow?
+        // Ischemia: if cerebral blood flow is critically low (example)
+        // if (signalBoard.CerebralBloodFlow < 0.25)
+        //     Pathology |= OrganPathology.Ischemia;
+
+        // Atrophy: chronic low health or long-term inflammation (irreversible once set)
+        if (!Pathology.HasFlag(OrganPathology.Atrophy) && health < 0.6 && 
+            (signalBoard.NeuroinflammationMarker > 0.1 || damageFactor > 0.4))
+        {
+            Pathology |= OrganPathology.Atrophy;
+        }
+
+        // Necrosis: extreme damage (irreversible)
+        if (!Pathology.HasFlag(OrganPathology.Necrosis) && health < 0.2)
+        {
+            Pathology |= OrganPathology.Necrosis;
+        }
+
+        // TODO: where is calcification?
+        // Calcification: chronic endocrine dysfunction (example)
+        // if (!Pathology.HasFlag(OrganPathology.Calcification) && Hypothalamus < 0.5 && 
+        //     signalBoard.CalcificationRiskFactor > 0.7)
+        // {
+        //     Pathology |= OrganPathology.Calcification;
+        // }
+    }
+
 }

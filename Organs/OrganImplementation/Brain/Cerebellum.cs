@@ -82,4 +82,35 @@ public class Cerebellum
             signalBoard.NeuroinflammationMarker = Math.Min(1.0, signalBoard.NeuroinflammationMarker + 0.01 * deltaTime);
         }
     }
+    
+    private void UpdatePathology(double health, double damageFactor, BrainSignalBoard signalBoard)
+    {
+        // Clear reversible flags
+        var reversibleFlags = OrganPathology.Inflammation | OrganPathology.Edema;
+        Pathology &= ~reversibleFlags;
+
+        // Inflammation
+        if (signalBoard.NeuroinflammationMarker > 0.05 || damageFactor > 0.3)
+            Pathology |= OrganPathology.Inflammation;
+
+        // Edema (increased intracranial pressure affects the posterior fossa, easily inducing cerebellar tonsillar herniation)
+        if (signalBoard.IntracranialPressureDelta > 8.0)   // Posterior fossa has poorer compliance
+            Pathology |= OrganPathology.Edema;
+
+        // Ischemia: insufficient blood supply to the posterior inferior cerebellar artery (PICA) or superior cerebellar artery (SCA)
+        // if (signalBoard.CerebralBloodFlow < 0.25 || signalBoard.PosteriorInferiorCerebellarArteryFlow < 0.2)
+            // Pathology |= OrganPathology.Ischemia;
+
+        // Hemorrhage (cerebellar hemorrhage is common in hypertension)
+        // if (signalBoard.CerebellarHemorrhageVolume > 5.0)
+            // Pathology |= OrganPathology.Hemorrhage;
+
+        // Atrophy (chronic alcoholism, olivopontocerebellar atrophy, etc.)
+        if (!Pathology.HasFlag(OrganPathology.Atrophy) && health < 0.65 && damageFactor > 0.35)
+            Pathology |= OrganPathology.Atrophy;
+
+        // Necrosis (irreversible)
+        if (!Pathology.HasFlag(OrganPathology.Necrosis) && health < 0.2)
+            Pathology |= OrganPathology.Necrosis;
+    }
 }

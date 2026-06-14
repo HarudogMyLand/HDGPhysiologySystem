@@ -51,6 +51,26 @@ public class Meninges
         {
             signalBoard.Interleukin6 = Math.Min(1.0, signalBoard.Interleukin6 + 0.1 * deltaTime);
         }
+        UpdatePathology();
     }
+    
+    private void UpdatePathology()
+    {
+        var reversibleFlags = OrganPathology.Inflammation 
+                              | OrganPathology.Hemorrhage 
+                              | OrganPathology.Edema;
+        Pathology &= ~reversibleFlags;
 
+        if (InflammationLevel > 0.01f) 
+            Pathology |= OrganPathology.Inflammation;
+
+        if (EpiduralBleedingVolume > 0 || SubduralBleedingVolume > 0 || SubarachnoidBleedingVolume > 0)
+            Pathology |= OrganPathology.Hemorrhage;
+
+        if (IntracranialPressureDelta > 5.0)   
+            Pathology |= OrganPathology.Edema;
+
+        // if (Some Ischemia condition) Pathology |= OrganPathology.Ischemia;
+        // if (Some Necrosis condition) Pathology |= OrganPathology.Necrosis;
+    }
 }

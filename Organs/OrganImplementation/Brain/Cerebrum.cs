@@ -85,4 +85,49 @@ public class Cerebrum
         signalBoard.OverallFunction = cerebrumHealth * 0.7 + 
                                       (signalBoard.IsConscious ? 0.3 : 0);
     }
+    
+    private void UpdatePathology(double health, double damageFactor, BrainSignalBoard signalBoard)
+{
+    // Clear reversible flags (inflammation, edema)
+    var reversibleFlags = OrganPathology.Inflammation | OrganPathology.Edema;
+    Pathology &= ~reversibleFlags;
+
+    // Inflammation: from global neuroinflammation or severe local damage
+    bool hasNeuroinflammation = signalBoard.NeuroinflammationMarker > 0.05;
+    bool severeDamage = damageFactor > 0.3;
+    if (hasNeuroinflammation || severeDamage)
+        Pathology |= OrganPathology.Inflammation;
+
+    // Edema: caused by increased intracranial pressure (cerebral edema)
+    if (signalBoard.IntracranialPressureDelta > 10.0)
+        Pathology |= OrganPathology.Edema;
+
+    // Ischemia: cerebral blood flow too low or local vascular stenosis
+    // if (signalBoard.CerebralBloodFlow < 0.25 || signalBoard.MiddleCerebralArteryFlow < 0.2)
+        // Pathology |= OrganPathology.Ischemia;
+
+    // Hemorrhage: intracerebral hemorrhage (e.g., hypertension, trauma)
+    // if (signalBoard.CerebralHemorrhageVolume > 10.0)
+        // Pathology |= OrganPathology.Hemorrhage;
+
+    // Atrophy: chronic damage or neurodegenerative changes (irreversible)
+    // if (!Pathology.HasFlag(OrganPathology.Atrophy) && health < 0.6 && damageFactor > 0.4)
+    //     Pathology |= OrganPathology.Atrophy;
+
+    // Necrosis: large area infarction or severe trauma (irreversible)
+    // if (!Pathology.HasFlag(OrganPathology.Necrosis) && health < 0.2)
+    //     Pathology |= OrganPathology.Necrosis;
+
+    // Fibrosis: glial scar formation after chronic inflammation (irreversible)
+    // if (!Pathology.HasFlag(OrganPathology.Fibrosis) && health < 0.5 && signalBoard.NeuroinflammationMarker > 0.15)
+    //     Pathology |= OrganPathology.Fibrosis;
+
+    // Calcification: seen in certain infections, metabolic diseases, or tumors (irreversible)
+    // if (!Pathology.HasFlag(OrganPathology.Calcification) && signalBoard.CalcificationRiskFactor > 0.8)
+    //     Pathology |= OrganPathology.Calcification;
+
+    // Benign/malignant tumor: set directly by external DamageHandler, only example condition here
+    // Usually not set automatically by UpdatePathology, but directly modified by damage logic
+}
+
 }

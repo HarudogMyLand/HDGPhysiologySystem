@@ -11,30 +11,31 @@ namespace Physiology.Organs.OrganImplementation.Brain;
 public class Brainstem
 {
     // Subregion integrity (0 = destroyed, 1 = fully healthy)
-    public double Medulla { get; set; } = 1.0;          // Cardiac, respiratory, vasomotor centers
-    public double Pons { get; set; } = 1.0;             // Respiratory regulation, sleep, cranial nerves
-    public double Midbrain { get; set; } = 1.0;         // Visual/auditory reflexes, motor control
-    public double ReticularFormation { get; set; } = 1.0; // Arousal, consciousness, pain modulation
+    public double MedullaHealth { get; set; } = 1.0;          // Cardiac, respiratory, vasomotor centers
+    public double PonsHealth { get; set; } = 1.0;             // Respiratory regulation, sleep, cranial nerves
+    public double MidbrainHealth { get; set; } = 1.0;         // Visual/auditory reflexes, motor control
+    public double ReticularFormationHealth { get; set; } = 1.0; // Arousal, consciousness, pain modulation
 
     // Derived overall health (critical: medulla + reticular formation weighted higher)
-    public double OverallHealth => (Medulla * 0.4 + ReticularFormation * 0.3 + Pons * 0.15 + Midbrain * 0.15);
-    public OrganPathology Pathology { get; set; } = new OrganPathology();
+    public double OverallHealth => (MedullaHealth * 0.4 + ReticularFormationHealth * 0.3 + PonsHealth * 0.15 + MidbrainHealth * 0.15);
+    public OrganPathology Pathology { get; set; }
 
     public Brainstem()
     {
         Pathology = OrganPathology.None;
     }
 
+
     /// <summary>
     /// Called by Brain.Tick() every frame.
-    /// Reads current integrities and writes vital signals to BrainSignalBoard.
+    /// Reads current integrity and writes vital signals to BrainSignalBoard.
     /// If critical structures fall below threshold, triggers immediate death.
     /// </summary>
     public void Tick(double deltaTime, BrainSignalBoard signalBoard)
     {
         double health = OverallHealth;
-        double medullaHealth = Medulla;
-        double reticularHealth = ReticularFormation;
+        double medullaHealth = MedullaHealth;
+        double reticularHealth = ReticularFormationHealth;
 
         // === Vital Signals (from Medulla) ===
         // Respiratory drive: medulla's dorsal and ventral respiratory groups
@@ -68,9 +69,9 @@ public class Brainstem
 
         // === Reflexes ===
         // Pupillary light reflex (midbrain)
-        signalBoard.PupillaryLightReflex = Midbrain;
+        signalBoard.PupillaryLightReflex = MidbrainHealth;
         // Corneal reflex (pons/midbrain)
-        signalBoard.CornealReflex = Math.Min(Pons, Midbrain);
+        signalBoard.CornealReflex = Math.Min(PonsHealth, MidbrainHealth);
         // Gag reflex (medulla)
         signalBoard.GagReflex = medullaHealth;
         // Cough reflex (medulla)
@@ -78,16 +79,16 @@ public class Brainstem
 
         // === Cranial Nerve Functions (simplified) ===
         // Maybe one day you will have to simulate brain nerves? just think about it
-        signalBoard.FacialMotorFunction = Pons;         // CN VII
-        signalBoard.EyeMovementControl = Midbrain;      // CN III, IV, VI
-        signalBoard.SwallowingFunction = Math.Min(Medulla, Pons);
-        signalBoard.VocalCordControl = Pons;
+        signalBoard.FacialMotorFunction = PonsHealth;         // CN VII
+        signalBoard.EyeMovementControl = MidbrainHealth;      // CN III, IV, VI
+        signalBoard.SwallowingFunction = Math.Min(MedullaHealth, PonsHealth);
+        signalBoard.VocalCordControl = PonsHealth;
 
         // === Pain Modulation (periaqueductal gray in midbrain) ===
-        signalBoard.DescendingPainInhibition = Midbrain;
+        signalBoard.DescendingPainInhibition = MidbrainHealth;
 
         // === Sleep-Wake Regulation ===
-        signalBoard.SleepWakeCycleIntegrity = Math.Min(Pons, ReticularFormation);
+        signalBoard.SleepWakeCycleIntegrity = Math.Min(PonsHealth, ReticularFormationHealth);
 
         // === Autonomic Outputs ===
         // Sympathetic outflow from medulla and pons
@@ -123,5 +124,41 @@ public class Brainstem
             signalBoard.NeuroinflammationMarker = 
                 Math.Min(1.0, signalBoard.NeuroinflammationMarker + 0.02 * deltaTime);
         }
+    }
+    
+    private void UpdatePathology(double health, double damageFactor, BrainSignalBoard signalBoard)
+    {
+        // Clear reversible flags
+        var reversibleFlags = OrganPathology.Inflammation | OrganPathology.Edema;
+        Pathology &= ~reversibleFlags;
+
+        // Inflammation: from global neuroinflammation or severe local damage
+        bool hasNeuroinflammation = signalBoard.NeuroinflammationMarker > 0.05;
+        bool severeDamage = damageFactor > 0.3;
+        if (hasNeuroinflammation || severeDamage)
+            Pathology |= OrganPathology.Inflammation;
+
+        // Edema: from elevated intracranial pressure (brainstem herniation risk)
+        if (signalBoard.IntracranialPressureDelta > 10.0)
+            Pathology |= OrganPathology.Edema;
+
+        // TODO: still adding cerebral blood flow
+        // Ischemia: critically low cerebral blood flow or basilar artery insufficiency
+        // if (signalBoard.CerebralBloodFlow < 0.25 || signalBoard.BasilarArteryFlow < 0.2)
+            // Pathology |= OrganPathology.Ischemia;
+
+        // TODO: adding brain stem hemorrhage volume
+        // Hemorrhage: brainstem hemorrhage (e.g., from hypertension or trauma)
+        // Could be set from external damage, but here we check signal board flag
+        // if (signalBoard.BrainstemHemorrhageVolume > 5.0)
+        //     Pathology |= OrganPathology.Hemorrhage;
+
+        // Necrosis: irreversible destruction (health below 20%)
+        if (!Pathology.HasFlag(OrganPathology.Necrosis) && health < 0.2)
+            Pathology |= OrganPathology.Necrosis;
+
+        // Atrophy: chronic damage
+        if (!Pathology.HasFlag(OrganPathology.Atrophy) && health < 0.6 && damageFactor > 0.4)
+            Pathology |= OrganPathology.Atrophy;
     }
 }
